@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Smart Eco Analytics</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<style>
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background: #eef6f7;
+}
+
+header {
+  padding: 6px 14px;
+  background: #2f6f6d;
+  color: white;
+  font-size: 12px;
+}
+
+.container {
+  max-width: 1000px;
+  margin: auto;
+  padding: 12px;
+  display: flex;
+  gap: 12px;
+}
+
+.card {
+  background: white;
+  border-radius: 8px;
+  padding: 10px;
+}
+
+.chart-card { flex: 3; }
+.side-card { flex: 1; text-align: center; }
+
+.controls {
+  display: flex;
+  gap: 8px;
+  font-size: 11px;
+  margin-bottom: 6px;
+}
+
+input, button {
+  font-size: 11px;
+  padding: 4px;
+}
+
+button {
+  background: #2f6f6d;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.vending {
+  width: 100px;
+  height: 180px;
+  border: 2px solid #2f6f6d;
+  border-radius: 6px;
+  margin: auto;
+  position: relative;
+  overflow: hidden;
+}
+
+.slot {
+  width: 50px;
+  height: 7px;
+  background: black;
+  margin: 8px auto;
+  border-radius: 4px;
+}
+
+.bottle {
+  width: 24px;
+  height: 52px;
+  background: #4da6ff;
+  border-radius: 8px 8px 4px 4px;
+  position: absolute;
+  left: 38px;
+  top: -60px;
+  display: none;
+}
+
+.drop {
+  animation: drop 1s ease-in forwards;
+}
+
+@keyframes drop {
+  to { top: 110px; }
+}
+
+.count {
+  font-size: 12px;
+  margin-top: 6px;
+  font-weight: bold;
+}
+</style>
+</head>
+
+<body>
+
+<header>Smart Eco • Analytics</header>
+
+<div class="container">
+
+<div class="card chart-card">
+  <div class="controls">
+    <input type="month" id="monthA">
+    <button onclick="exportCSV()">Export Excel File</button>
+    <span>Total: <b id="monthlyTotal">0</b></span>
+  </div>
+  <canvas id="ecoChart" height="160"></canvas>
+</div>
+
+<div class="card side-card">
+  <div class="vending">
+    <div class="slot"></div>
+    <div class="bottle" id="bottle"></div>
+  </div>
+  <div class="count">
+    Today: <span id="bottleCount">0</span>
+  </div>
+</div>
+
+</div>
+
+<script>
+
+const REPORT_DAY = 10;
+const REPORT_MONTH = 1; 
+
+
+const ctx = document.getElementById("ecoChart");
+const bottleEl = document.getElementById("bottle");
+const bottleText = document.getElementById("bottleCount");
+
+let todayCount = 0;
+let todayIndex = null;
+let monthData = { labels: [], data: [] };
+
+
+function colorLevel(v) {
+  if (v < 5) return "#cfeeee";
+  if (v < 10) return "#9fd6d6";
+  if (v < 20) return "#5bb3b3";
+  if (v < 30) return "#f4b266";
+  return "#e05a5a";
+}
+
+function updateTotal() {
+  document.getElementById("monthlyTotal").innerText =
+    monthData.data.reduce((a,b)=>a+b,0);
+}
+
+
+function loadMonth(value) {
+  const today = new Date();
+  const date = new Date(value + "-01");
+  const year = date.getFullYear();
+  const month = date.getMonth();
+
+  let days = new Date(year, month + 1, 0).getDate();
+
+
+  if (month === REPORT_MONTH && year === today.getFullYear()) {
+    days = REPORT_DAY;
+  }
+
+  const labels = [];
+  const data = [];
+
+  for (let d = 1; d <= days; d++) {
+    labels.push(`${month+1}/${d}`);
+    data.push(Math.floor(Math.random() * 18) + 3);
+  }
+
+
+  if (month === REPORT_MONTH && year === today.getFullYear()) {
+    todayIndex = REPORT_DAY - 1;
+    data[todayIndex] = 0;
+    todayCount = 0;
+    bottleText.innerText = 0;
+  } else {
+    todayIndex = null;
+  }
+
+  monthData = { labels, data };
+  updateTotal();
+
+  chart.data.labels = labels;
+  chart.data.datasets = [{
+    data: data,
+    backgroundColor: data.map(colorLevel)
+  }];
+  chart.update();
+}
+
+
+const chart = new Chart(ctx, {
+  type: "bar",
+  data: { labels: [], datasets: [] },
+  options: {
+    plugins: { legend: { display: false } },
+    scales: {
+      y: {
+        ticks: {
+          callback: v => {
+            if (v < 5) return "Very Low";
+            if (v < 10) return "Low";
+            if (v < 20) return "Medium";
+            if (v < 30) return "High";
+            return "Very High";
+          }
+        }
+      }
+    }
+  }
+});
+
+
+document.getElementById("monthA").addEventListener("change", e => {
+  loadMonth(e.target.value);
+});
+
+
+function exportCSV() {
+  let csv = "Date,Bottles\n";
+  monthData.labels.forEach((l,i)=>{
+    csv += `${l},${monthData.data[i]}\n`;
+  });
+  const blob = new Blob([csv], { type: "text/csv" });
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = "smart_eco_report.csv";
+  a.click();
+}
+
+
+function randomDrop() {
+  const delay = Math.floor(Math.random() * 15000) + 1000; // 1–20 sec
+
+  setTimeout(() => {
+    if (todayIndex !== null) {
+      bottleEl.style.display = "block";
+      bottleEl.classList.remove("drop");
+      void bottleEl.offsetWidth;
+      bottleEl.classList.add("drop");
+
+      todayCount++;
+      bottleText.innerText = todayCount;
+
+      monthData.data[todayIndex] = todayCount;
+      chart.data.datasets[0].data = monthData.data;
+      chart.data.datasets[0].backgroundColor =
+        monthData.data.map(colorLevel);
+
+      updateTotal();
+      chart.update();
+
+      setTimeout(()=>{
+        bottleEl.style.display = "none";
+        bottleEl.style.top = "-60px";
+      },1000);
+    }
+    randomDrop();
+  }, delay);
+}
+
+
+document.getElementById("monthA").value = "2026-02";
+loadMonth("2026-02");
+randomDrop();
+</script>
+
+</body>
+</html>
