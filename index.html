@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Smart Eco</title>
+  <title>Smart Eco Vending Machine by 11-Serrano Group 4</title>
   <style>
     * {
       box-sizing: border-box;
@@ -111,11 +111,11 @@
     <h1>Pindutin ang screen para pumili.</h1>
 
     <div class="options">
-      <div class="option" onclick="startProcess('Filling the water, please wait...')">
+      <div class="option" onclick="startProcess('Pinupuno ang tubig, mangyaring maghintay…')">
         <div class="label">1 bote = Tubig lamang</div>
       </div>
 
-      <div class="option" onclick="startProcess('Dropping the bottle, please wait...')">
+      <div class="option" onclick="startProcess('Ibinababa ang bote, mangyaring maghintay…...')">
         <div class="label">3 bote = Tubig + Libreng Bote</div>
       </div>
     </div>
@@ -132,7 +132,7 @@
   const loadingText = document.getElementById("loadingText");
   const spinner = document.getElementById("spinner");
 
- //audio api to play beep 
+ //audio api to play beepppp
   function playBeep() {
     const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
     const oscillator = audioCtx.createOscillator();
