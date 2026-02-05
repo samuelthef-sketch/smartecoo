@@ -123,7 +123,7 @@
     </div>
   </div>
 
-  <!-- VERIFIED BOTTLES (CENTERED BELOW OPTIONS) -->
+
   <div class="verified">
     Verified Bottles: <span id="verifiedCount">0</span>
   </div>
@@ -142,7 +142,7 @@ const verifiedText = document.getElementById("verifiedCount");
 
 let verifiedCount = 0;
 
-// Beep sound
+// Beep sounddddd
 function playBeep() {
   const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
   const oscillator = audioCtx.createOscillator();
@@ -159,10 +159,10 @@ function playBeep() {
   oscillator.stop(audioCtx.currentTime + 0.15);
 }
 
-// FIXED: SHIFT + 1 detection
+
 document.addEventListener("keydown", (e) => {
   if (e.shiftKey && e.code === "Digit1") {
-    e.preventDefault(); // avoid browser quirks
+    e.preventDefault(); 
     playBeep();
     verifiedCount++;
     verifiedText.innerText = verifiedCount;
@@ -191,3 +191,4 @@ function startProcess(message) {
 
 </body>
 </html>
+
