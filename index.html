@@ -86,6 +86,7 @@
       flex-direction: column;
       font-size: 22px;
       text-align: center;
+      padding: 20px;
     }
 
     .spinner {
@@ -110,11 +111,11 @@
 </head>
 <body>
 
-<div class="container" id="mainScreen">
+<div class="container">
   <h1>Pindutin ang screen para pumili.</h1>
 
   <div class="options">
-    <div class="option" onclick="startProcess('Pinupuno ang tubig, mangyaring maghintay…')">
+    <div class="option" onclick="optionOne()">
       <div class="label">1 bote = Tubig lamang</div>
     </div>
 
@@ -122,7 +123,6 @@
       <div class="label">3 bote = Tubig + Libreng Bote</div>
     </div>
   </div>
-
 
   <div class="verified">
     Verified Bottles: <span id="verifiedCount">0</span>
@@ -142,7 +142,7 @@ const verifiedText = document.getElementById("verifiedCount");
 
 let verifiedCount = 0;
 
-// Beep sounddddd
+// Beep sound
 function playBeep() {
   const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
   const oscillator = audioCtx.createOscillator();
@@ -159,15 +159,37 @@ function playBeep() {
   oscillator.stop(audioCtx.currentTime + 0.15);
 }
 
-
+// SHIFT + 1 = verify bottle
 document.addEventListener("keydown", (e) => {
   if (e.shiftKey && e.code === "Digit1") {
-    e.preventDefault(); 
+    e.preventDefault();
     playBeep();
     verifiedCount++;
     verifiedText.innerText = verifiedCount;
   }
 });
+
+// OPTION 1 LOGIC (WITH BALANCE CHECK)
+function optionOne() {
+  if (verifiedCount <= 0) {
+    playBeep();
+    loadingText.innerHTML =
+      "<div class='thank-you'>Walang sapat na bote.<br>Mangyaring maghulog muna ng bote.</div>";
+    spinner.style.display = "none";
+    loadingScreen.style.display = "flex";
+
+    setTimeout(() => {
+      loadingScreen.style.display = "none";
+      loadingText.innerText = "";
+    }, 2500);
+    return;
+  }
+
+  // If valid
+  verifiedCount--;
+  verifiedText.innerText = verifiedCount;
+  startProcess("Pinupuno ang tubig, mangyaring maghintay…");
+}
 
 function startProcess(message) {
   playBeep();
@@ -191,4 +213,3 @@ function startProcess(message) {
 
 </body>
 </html>
-
