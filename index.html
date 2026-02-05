@@ -65,7 +65,13 @@
       font-size: 16px;
     }
 
-    
+    .verified {
+      margin-top: 25px;
+      font-size: 18px;
+      font-weight: bold;
+      color: #2f6f6d;
+    }
+
     .loading-screen {
       position: fixed;
       top: 0;
@@ -93,84 +99,95 @@
     }
 
     @keyframes spin {
-      to {
-        transform: rotate(360deg);
-      }
+      to { transform: rotate(360deg); }
     }
 
     .thank-you {
       font-size: 26px;
       font-weight: bold;
-      
     }
   </style>
 </head>
 <body>
 
-  <div class="container" id="mainScreen">
-    <h1>Pindutin ang screen para pumili.</h1>
+<div class="container" id="mainScreen">
+  <h1>Pindutin ang screen para pumili.</h1>
 
-    <div class="options">
-      <div class="option" onclick="startProcess('Pinupuno ang tubig, mangyaring maghintay…')">
-        <div class="label">1 bote = Tubig lamang</div>
-      </div>
+  <div class="options">
+    <div class="option" onclick="startProcess('Pinupuno ang tubig, mangyaring maghintay…')">
+      <div class="label">1 bote = Tubig lamang</div>
+    </div>
 
-      <div class="option" onclick="startProcess('Ibinababa ang bote, mangyaring maghintay…...')">
-        <div class="label">3 bote = Tubig + Libreng Bote</div>
-      </div>
+    <div class="option" onclick="startProcess('Ibinababa ang bote, mangyaring maghintay…')">
+      <div class="label">3 bote = Tubig + Libreng Bote</div>
     </div>
   </div>
 
-  
-  <div class="loading-screen" id="loadingScreen">
-    <div id="loadingText"></div>
-    <div class="spinner" id="spinner"></div>
+  <!-- VERIFIED BOTTLES (CENTERED BELOW OPTIONS) -->
+  <div class="verified">
+    Verified Bottles: <span id="verifiedCount">0</span>
   </div>
+</div>
 
-  <script>
-  const loadingScreen = document.getElementById("loadingScreen");
-  const loadingText = document.getElementById("loadingText");
-  const spinner = document.getElementById("spinner");
+<div class="loading-screen" id="loadingScreen">
+  <div id="loadingText"></div>
+  <div class="spinner" id="spinner"></div>
+</div>
 
- //audio api to play beepppp
-  function playBeep() {
-    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-    const oscillator = audioCtx.createOscillator();
-    const gainNode = audioCtx.createGain();
+<script>
+const loadingScreen = document.getElementById("loadingScreen");
+const loadingText = document.getElementById("loadingText");
+const spinner = document.getElementById("spinner");
+const verifiedText = document.getElementById("verifiedCount");
 
-    oscillator.type = "sine";
-    oscillator.frequency.setValueAtTime(1000, audioCtx.currentTime); 
-    gainNode.gain.setValueAtTime(0.2, audioCtx.currentTime); 
+let verifiedCount = 0;
 
-    oscillator.connect(gainNode);
-    gainNode.connect(audioCtx.destination);
+// Beep sound
+function playBeep() {
+  const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  const oscillator = audioCtx.createOscillator();
+  const gainNode = audioCtx.createGain();
 
-    oscillator.start();
-    oscillator.stop(audioCtx.currentTime + 0.15); 
+  oscillator.type = "sine";
+  oscillator.frequency.value = 1000;
+  gainNode.gain.value = 0.2;
+
+  oscillator.connect(gainNode);
+  gainNode.connect(audioCtx.destination);
+
+  oscillator.start();
+  oscillator.stop(audioCtx.currentTime + 0.15);
+}
+
+// FIXED: SHIFT + 1 detection
+document.addEventListener("keydown", (e) => {
+  if (e.shiftKey && e.code === "Digit1") {
+    e.preventDefault(); // avoid browser quirks
+    playBeep();
+    verifiedCount++;
+    verifiedText.innerText = verifiedCount;
   }
+});
 
-  function startProcess(message) {
-    playBeep(); 
+function startProcess(message) {
+  playBeep();
 
-    loadingText.innerText = message;
-    spinner.style.display = "block";
-    loadingScreen.style.display = "flex";
+  loadingText.innerText = message;
+  spinner.style.display = "block";
+  loadingScreen.style.display = "flex";
 
-    
-    setTimeout(() => {
-      spinner.style.display = "none";
-      loadingText.innerHTML =
-        "<div class='thank-you'>Maraming salamat sa paggamit ng Smart Eco!</div>";
-    }, 2000);
+  setTimeout(() => {
+    spinner.style.display = "none";
+    loadingText.innerHTML =
+      "<div class='thank-you'>Maraming salamat sa paggamit ng Smart Eco!</div>";
+  }, 2000);
 
-    
-    setTimeout(() => {
-      loadingScreen.style.display = "none";
-      loadingText.innerText = "";
-    }, 4000);
-  }
+  setTimeout(() => {
+    loadingScreen.style.display = "none";
+    loadingText.innerText = "";
+  }, 4000);
+}
 </script>
 
 </body>
 </html>
-
